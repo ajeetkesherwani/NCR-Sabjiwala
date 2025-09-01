@@ -168,6 +168,12 @@ const {
 const {
   removeFromWishlist,
 } = require("../controllers/user/wishlistController/removeFromWishlist");
+
+//user
+
+const { createUser } = require("../controllers/user/authController/createUser");
+const { getUser } = require("../controllers/user/authController/getUser");
+
 const router = express.Router();
 
 // router.get("/test", (req,res)=>{
@@ -392,5 +398,14 @@ router.post("/notification/send", async (req, res) => {
     });
   }
 });
+
+//user
+
+router.post("/create", userAuthenticate,
+  userAuthenticate,
+  fileUploader("userProfile", [{ name: "profileImage", maxCount: 1 }]),
+createUser );
+
+router.get("/list", userAuthenticate, getUser);
 
 module.exports = router;

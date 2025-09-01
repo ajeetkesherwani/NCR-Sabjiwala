@@ -1,60 +1,33 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
 
-const CartSchema = new Schema({
-    userId: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-        index: true,
-    },
-    productId: {
-        type: Schema.Types.ObjectId,
-        ref: "VendorProduct",
-        required: true,
-    },
-    price: {
-        type: Number,
-        required: true,
-        min: 0,
-    },
-    quantity: {
-        type: Number,
-        required: true,
-        min: 1,
-        default: 1,
-    },
-    // array of topping IDs + their individual price
-    toppings: [
-        {
-            toppingId: {
-                type: Schema.Types.ObjectId,
-                ref: "Toppins",
-                required: true,
-            },
-            price: {
-                type: Number,
-                required: true,
-                min: 0,
-            }
-        }
-    ],
-    finalPrice: {
-        type: Number,
-        required: true,
-        min: 0,
-    },
-    status: {
-        type: String,
-        enum: ["active", "ordered", "abandoned"],
-        default: "active",
-    }
-}, { timestamps: true });
-// compute finalPrice before save: (price + sum(topping prices)) * quantity
-CartSchema.pre("validate", function (next) {
-    const toppingsCost = this.toppings.reduce((sum, t) => sum + t.price, 0);
-    this.finalPrice = (this.price + toppingsCost) * this.quantity;
-    next();
+const cartProductSchema = new mongoose.Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
+  },
+  variantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ProductVarient", // or your variant model name
+    required: false,
+  },
+  quantity: {
+    type: Number,
+    default: 1,
+    min: 1,
+  },
+  price: Number, // Could store price at time of adding to cart
 });
 
-module.exports = mongoose.model("Cart", CartSchema);
+const cartSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    unique: true,
+    required: true,
+  },
+  products: [cartProductSchema],
+  updatedAt: Date,
+});
+
+module.exports = mongoose.model("Cart", cartSchema);

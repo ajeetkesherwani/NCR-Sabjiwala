@@ -1,6 +1,4 @@
-const newOrder = require("../../../models/newOrder");
-const Shop = require("../../../models/shop");
-const shopRating = require("../../../models/shopRating");
+
 
 
 // POST /api/shop-ratings
@@ -17,12 +15,6 @@ exports.shopRatingCreate = async (req, res) => {
 
         // Create new rating
         const newRating = await shopRating.create({ userId, shopId, orderId, rating, review, });
-
-        const newOrderUpdate = await newOrder.findByIdAndUpdate(orderId, { isRated: true });
-        if (!newOrderUpdate) {
-            return res.status(404).json({ success: false, message: "Order not found." });
-        }
-
 
         // Recalculate shop average rating
         const agg = await shopRating.aggregate([

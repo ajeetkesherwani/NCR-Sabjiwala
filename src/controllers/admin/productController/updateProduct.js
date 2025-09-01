@@ -1,99 +1,78 @@
+
 const Product = require("../../../models/product");
 const AppError = require("../../../utils/AppError");
 const catchAsync = require("../../../utils/catchAsync");
-
-// Simple validation helper (adjust as per your implementation)
-function validateRequiredField(field, name) {
-    if (field === undefined || field === null || field === "") {
-        return new AppError(`${name} is required.`, 400);
-    }
-    return null;
-}
+const path = require("path")
 
 exports.updateProduct = catchAsync(async (req, res, next) => {
     const { id } = req.params;
 
-    const product = await Product.findById(id);
-    if (!product) return next(new AppError("Product not found.", 404));
+    const existingProduct = await Product.findById(id);
+    if (!existingProduct) {
+        return next(new AppError("Product not found", 404));
+    }
 
-    let {
-        name,
+    const {
+        title,
+        description,
         categoryId,
         subCategoryId,
-        mrp,
-        sellingPrice,
-        discount,
-        unitOfMeasurement,
-        sellingUnit,
-        shortDescription,
-        longDescription,
-        serviceId,
-        type,
+        tags,
+        isDealOfTheDay,
+        isAvailable,
+        isReturnAvailable,
+        isFavorite,
+        details = {},
+        info = {}
     } = req.body;
 
-    // Validate required fields
-    const requiredFields = [
-        { field: name, name: "Product name" },
-        { field: categoryId, name: "Category ID" },
-        { field: mrp, name: "MRP" },
-        { field: sellingPrice, name: "Selling Price" },
-        { field: unitOfMeasurement, name: "Unit of Measurement" },
-        { field: sellingUnit, name: "Selling Unit" },
-        { field: shortDescription, name: "Short Description" },
-        { field: longDescription, name: "Long Description" },
-        { field: serviceId, name: "Service Type" },
-    ];
+    // Parse JSON strings from multipart/form-data
+    const parsedDetails = typeof details === 'string' ? JSON.parse(details) : details;
+    const parsedInfo = typeof info === 'string' ? JSON.parse(info) : info;
 
-    for (const { field, name } of requiredFields) {
-        const error = validateRequiredField(field, name);
-        if (error) return next(error);
+    // Handle uploaded images
+    let imageUrls = existingProduct.images || [];
+    if (req.files && req.files.images && req.files.images.length > 0) {
+        imageUrls = req.files.images.map((file) => path.join(file.destination, file.filename).replace(/\\/g, "/"));
     }
 
-    // Handle gallery images update safely
-    let galleryimagePaths = product.gallery_image;
-    if (
-        req.files &&
-        req.files.gallery_image &&
-        Array.isArray(req.files.gallery_image) &&
-        req.files.gallery_image.length > 0
-    ) {
-        galleryimagePaths = req.files.gallery_image.map(
-            (file) => `${file.destination}/${file.filename}`
-        );
-    }
+    // Update fields
+    existingProduct.name = title || existingProduct.name;
+    existingProduct.description = description || existingProduct.description;
+    existingProduct.images = imageUrls;
+    existingProduct.categoryId = categoryId || existingProduct.categoryId;
+    existingProduct.subCategoryId = subCategoryId || existingProduct.subCategoryId;
+    existingProduct.tags = Array.isArray(tags)
+        ? tags
+        : typeof tags === 'string'
+            ? JSON.parse(tags)
+            : [];
+    existingProduct.isDealOfTheDay = isDealOfTheDay ?? existingProduct.isDealOfTheDay;
+    existingProduct.isAvailable = isAvailable ?? existingProduct.isAvailable;
+    existingProduct.isReturnAvailable = isReturnAvailable ?? existingProduct.isReturnAvailable;
+    existingProduct.isFavorite = isFavorite ?? existingProduct.isFavorite;
+    existingProduct.details = {
+        nutrientValue: parsedDetails.nutrientValue || '',
+        about: parsedDetails.about || '',
+        description: parsedDetails.description || ''
+    };
+    existingProduct.info = {
+        shelfLife: parsedInfo.shelfLife || '',
+        returnPolicy: parsedInfo.returnPolicy || '',
+        storageTips: parsedInfo.storageTips || '',
+        country: parsedInfo.country || '',
+        help: parsedInfo.help || '',
+        disclaimer: parsedInfo.disclaimer || '',
+        seller: parsedInfo.seller || '',
+        fssai: parsedInfo.fssai || ''
+    };
+    existingProduct.updatedAt = new Date();
 
-    // Handle primary image update safely
-    let primaryImage = product.primary_image;
-    if (req.files && req.files.primary_image && req.files.primary_image[0]) {
-        primaryImage = `${req.files.primary_image[0].destination}/${req.files.primary_image[0].filename}`;
-    }
+    await existingProduct.save();
 
-    // Handle subCategoryId properly - convert string "null" or empty string to actual null
-    if (!subCategoryId || subCategoryId.trim() === "" || subCategoryId === "null") {
-        subCategoryId = null;
-    }
-
-    // Update product fields
-    product.name = name;
-    product.categoryId = categoryId;
-    product.subCategoryId = subCategoryId;  // Already handled above, no need for ternary
-    product.mrp = mrp;
-    product.sellingPrice = sellingPrice;
-    product.discount = discount || "";
-    product.unitOfMeasurement = unitOfMeasurement;
-    product.sellingUnit = sellingUnit;
-    product.shortDescription = shortDescription;
-    product.longDescription = longDescription;
-    product.serviceId = serviceId;
-    product.type = type;
-    product.primary_image = primaryImage;
-    product.gallery_image = galleryimagePaths;
-
-    await product.save();
-
-    res.status(200).json({
+    return res.status(200).json({
         status: true,
         message: "Product updated successfully.",
-        data: { product },
+        data: { product: existingProduct }
     });
 });

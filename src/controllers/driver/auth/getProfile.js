@@ -1,8 +1,5 @@
 const Driver = require("../../../models/driver");
 const Product = require("../../../models/product");
-const ShopSchedule = require("../../../models/shopSchedule");
-const Vendor = require("../../../models/vendor");
-const VendorAccount = require("../../../models/vendorAccount");
 const AppError = require("../../../utils/AppError");
 const catchAsync = require("../../../utils/catchAsync");
 

@@ -1,6 +1,6 @@
 const Category = require("../../../models/category");
+const Product = require("../../../models/product");
 const User = require("../../../models/user");
-const VendorProduct = require("../../../models/vendorProduct");
 const catchAsync = require("../../../utils/catchAsync");
 
 exports.getAllFeaturedProduct = catchAsync(async (req, res, next) => {
@@ -15,7 +15,7 @@ exports.getAllFeaturedProduct = catchAsync(async (req, res, next) => {
         const userType = user.userType;
 
 
-        const products = await VendorProduct.find({ status: "active", type: userType, serviceId }).limit(10).populate("shopId");
+        const products = await Product.find({ status: "active", type: userType, serviceId }).limit(10).populate("shopId");
 
         if (!products || products.length === 0) {
             return res.status(404).json({

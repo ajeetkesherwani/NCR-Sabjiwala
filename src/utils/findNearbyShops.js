@@ -1,6 +1,4 @@
 const { default: mongoose } = require("mongoose");
-const Shop = require("../models/shop");
-
 
 /**
  * Find nearby shops within a specified radius.
@@ -11,29 +9,34 @@ const Shop = require("../models/shop");
  * @returns {Promise<Array>} Array of shops within radius
  */
 
-const findNearbyShops = async (coords, serviceId, radiusInKm = 20, extraFilter = {}) => {
-    const { lat, long } = coords;
+const findNearbyShops = async (
+  coords,
+  serviceId,
+  radiusInKm = 20,
+  extraFilter = {}
+) => {
+  const { lat, long } = coords;
 
-    if (!lat || !long) throw new Error("Invalid coordinates provided");
+  if (!lat || !long) throw new Error("Invalid coordinates provided");
 
-    const finalServiceId = new mongoose.Types.ObjectId(serviceId);
+  const finalServiceId = new mongoose.Types.ObjectId(serviceId);
 
-    const shops = await Shop.find({
-        status: "active",
-        serviceId: finalServiceId,
-        ...extraFilter,
-        location: {
-            $nearSphere: {
-                $geometry: {
-                    type: "Point",
-                    coordinates: [long, lat],
-                },
-                $maxDistance: radiusInKm * 1000, // convert km to meters
-            },
+  const shops = await Shop.find({
+    status: "active",
+    serviceId: finalServiceId,
+    ...extraFilter,
+    location: {
+      $nearSphere: {
+        $geometry: {
+          type: "Point",
+          coordinates: [long, lat],
         },
-    });
+        $maxDistance: radiusInKm * 1000, // convert km to meters
+      },
+    },
+  });
 
-    return shops;
+  return shops;
 };
 
 module.exports = findNearbyShops;

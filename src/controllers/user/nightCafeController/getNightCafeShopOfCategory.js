@@ -1,6 +1,5 @@
 const Category = require("../../../models/category");
 const User = require("../../../models/user");
-const VendorProduct = require("../../../models/vendorProduct");
 const catchAsync = require("../../../utils/catchAsync");
 
 exports.getNightCafeShopOfCategory = catchAsync(async (req, res, next) => {
@@ -16,7 +15,7 @@ exports.getNightCafeShopOfCategory = catchAsync(async (req, res, next) => {
 
         const categoryId = req.params.categoryId;
 
-        const products = await VendorProduct.find({ status: "active", categoryId, ...typeFilter, isDeleted: false }).populate("shopId");
+        const products = await VendorProduct.find({ status: "active", categoryId, ...typeFilter }).populate("shopId");
 
         if (!products || products.length === 0) {
             return res.status(404).json({

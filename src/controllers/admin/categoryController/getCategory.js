@@ -2,29 +2,39 @@ const Category = require("../../../models/category");
 const catchAsync = require("../../../utils/catchAsync");
 
 exports.getCategory = catchAsync(async (req, res) => {
-    // Fetch categories with priority 1-10
-    const priorityCategories = await Category.find({ 
-        cat_id: null,
-        priority: { $gte: 1, $lte: 10 } 
-    }).populate({path: "serviceId", select: "name"}).sort({ priority: 1 });
+    // === Aggregate pipeline for top-level categories with subcategory count ===
+    const categories = await Category.aggregate([
+        {
+            $match: { cat_id: null } // Only fetch main categories
+        },
+        {
+            $lookup: {
+                from: "categories", // MongoDB auto-pluralizes collection names
+                localField: "_id",  // Match category _id
+                foreignField: "cat_id", // with subcategory cat_id
+                as: "subcategories"
+            }
+        },
+        {
+            $addFields: {
+                subcategoryCount: { $size: "$subcategories" } // Add count of subcategories
+            }
+        },
+        {
+            $project: {
+                subcategories: 0 // Exclude subcategories array from response
+            }
+        },
+        {
+            $sort: { createdAt: -1 } // Newest categories first
+        }
+    ]);
 
-    // Fetch remaining categories
-    const otherCategories = await Category.find({ 
-        cat_id: null,
-        $or: [
-            { priority: { $gt: 10 } },
-            { priority: { $lt: 1 } },
-            { priority: null }
-        ]
-    }).populate({path: "serviceId", select: "name"}).sort({ priority: 1 });
-
-    // Combine both results
-    const allCategory = [...priorityCategories, ...otherCategories];
-
+    // === Send response ===
     return res.status(200).json({
         status: true,
-        results: allCategory.length,
-        data: allCategory
-    })
-
-})
+        message: "Categories fetched successfully",
+        results: categories.length,
+        data: categories
+    });
+});

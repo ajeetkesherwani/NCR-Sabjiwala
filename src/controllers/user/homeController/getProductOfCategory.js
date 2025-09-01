@@ -1,6 +1,5 @@
 const Category = require("../../../models/category");
-const User = require("../../../models/user");
-const VendorProduct = require("../../../models/vendorProduct");
+const User = require("../../../models/user")
 const { calculateOffer } = require("../../../utils/calculateOffer");
 const catchAsync = require("../../../utils/catchAsync");
 
@@ -16,7 +15,7 @@ exports.getProductOfCategory = catchAsync(async (req, res, next) => {
 
         const categoryId = req.params.categoryId;
 
-        const productsRaw = await VendorProduct.find({ status: "active", type: userType, categoryId, isDeleted: false }).populate("shopId", "name");
+        const productsRaw = await VendorProduct.find({ status: "active", type: userType, categoryId }).populate("shopId", "name");
 
         const products = productsRaw.map((prod) => ({
             _id: prod._id,

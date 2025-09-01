@@ -1,6 +1,4 @@
 const Category = require("../../../models/category");
-const Shop = require("../../../models/shop");
-const VendorProduct = require("../../../models/vendorProduct");
 const { calculateOffer } = require("../../../utils/calculateOffer");
 const catchAsync = require("../../../utils/catchAsync");
 

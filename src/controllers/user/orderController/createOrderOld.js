@@ -1,6 +1,5 @@
 const Order = require("../../../models/order");
 const OrderDetails = require("../../../models/orderDetails");
-const VendorOrderHistory = require("../../../models/vendorOrderHistory");
 const AppError = require("../../../utils/AppError");
 const catchAsync = require("../../../utils/catchAsync");
 

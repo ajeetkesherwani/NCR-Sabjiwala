@@ -8,27 +8,44 @@ const getAllOrder = async (req, res) => {
     // Base filter
     const filter = { userId };
 
-    if (orderStatus === "active") {
-      filter.orderStatus = { $nin: ["delivered", "cancelled"] };
-    } else if (orderStatus === "completed") {
-      filter.orderStatus = { $in: ["delivered", "cancelled"] };
-    } else if (orderStatus !== "all") {
-      return res.status(400).json({ success: false, message: "Invalid order status" });
-    }
-    // if orderStatus === 'all', we leave filter as just { userId }
+    // switch (orderStatus) {
+    //   case "pending":
+    //     filter.orderStatus = "pending";
+    //     break;
+    //   case "accepted":
+    //     filter.orderStatus = "accepted";
+    //     break;
+    //   case "ready":
+    //     filter.orderStatus = "ready";
+    //     break;
+    //   case "shipped":
+    //     filter.orderStatus = "shipped";
+    //     break;
+    //   case "running":
+    //     filter.orderStatus = "running";
+    //     break;
+    //   case "delivered":
+    //     filter.orderStatus = "delivered";
+    //     break;
+    //   case "cancelled":
+    //     filter.orderStatus = "cancelled";
+    //     break;
+    //   case "all":
+    //     // No additional filter needed for 'all'
+    //     break;
+    // }
 
     const orders = await Order.find(filter)
-      .populate("productData.product_id")
-      .populate("couponId")
-      .populate("addressId")
-      .populate("shopId", "name location packingCharge")
-      .populate("vendorId", "name email")
+      .populate("products.productId", "name image")
+      .select("products grandTotal status createdAt paymentMethod")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({ success: true, orders });
   } catch (error) {
     console.error("Error fetching user orders:", error);
-    return res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    return res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: error.message });
   }
 };
 

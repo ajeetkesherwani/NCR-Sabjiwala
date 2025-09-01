@@ -1,38 +1,44 @@
 const Order = require("../../../models/order");
 
+
 const getAllOrder = async (req, res) => {
     try {
-        const orderStatus = req.query.orderStatus;
+        const { orderStatus } = req.query;
 
-        let ordersRaw;
+        // Base filter
+        const filter = {};
 
-        if (orderStatus === "all") {
-            ordersRaw = await Order.find().populate("productData.product_id").populate("couponId").populate("addressId").populate("shopId", "name location packingCharge").populate("vendorId", "name email").populate("assignedDriver", "name").sort({ createdAt: -1 });
-        } else {
-            ordersRaw = await Order.find({ orderStatus }).populate("productData.product_id").populate("couponId").populate("addressId").populate("shopId", "name location packingCharge").populate("vendorId", "name email").populate("assignedDriver", "name").sort({ createdAt: -1 });
+        switch (orderStatus) {
+            case "pending":
+                filter.orderStatus = "pending";
+                break;
+            case "accepted":
+                filter.orderStatus = "accepted";
+                break;
+            case "ready":
+                filter.orderStatus = "ready";
+                break;
+            case "shipped":
+                filter.orderStatus = "shipped";
+                break;
+            case "running":
+                filter.orderStatus = "running";
+                break;
+            case "delivered":
+                filter.orderStatus = "delivered";
+                break;
+            case "cancelled":
+                filter.orderStatus = "cancelled";
+                break;
+            case "all":
+                // No additional filter needed for 'all'
+                break;
         }
 
-        if (!ordersRaw || ordersRaw.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'No orders found'
-            });
-        }
-
-        const orders = ordersRaw.map((order) => ({
-            _id: order._id,
-            booking_id: order.booking_id,
-            deliveryDate: order.deliveryDate,
-            deliveryTime: order.deliveryTime,
-            finalTotalPrice: order.finalTotalPrice,
-            orderStatus: order.orderStatus,
-            paymentMode: order.paymentMode,
-            paymentStatus: order.paymentStatus,
-            shopName: order.shopId.name,
-            assignedDriver: order.assignedDriver ? order.assignedDriver.name : null,
-        }));
-
-
+        const orders = await Order.find(filter)
+            .populate("items.productId")
+            .populate("deliveryAddressId")
+            .sort({ createdAt: -1 });
 
         return res.status(200).json({ success: true, orders });
     } catch (error) {

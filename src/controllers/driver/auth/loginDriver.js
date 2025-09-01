@@ -22,10 +22,6 @@ exports.loginDriver = catchAsync(async (req, res, next) => {
         return next(new AppError("Your account is blocked. Please contact support.", 403));
     }
 
-    if (driver.isVerified === false) {
-        return next(new AppError("Your account is waiting for verification. Please wait for approval.", 403));
-    }
-
     driver.deviceId = deviceId || driver.deviceId;
     driver.deviceToken = deviceToken || driver.deviceToken;
     await driver.save();

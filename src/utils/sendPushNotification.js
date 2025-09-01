@@ -21,7 +21,7 @@ const sendPushNotification = async ({ deviceToken, title, body, data = {} }) => 
         return response;
     } catch (error) {
         console.error("❌ Error sending notification:", error);
-        // throw error;
+        throw error;
     }
 };
 

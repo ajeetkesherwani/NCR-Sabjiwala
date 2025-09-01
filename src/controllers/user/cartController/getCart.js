@@ -1,52 +1,55 @@
-const cart = require("../../../models/cart");
-require("../../../models/toppins");
+const catchAsync = require("../../../utils/catchAsync");
+const Cart = require("../../../models/cart");
 
-exports.getCart = async (req, res) => {
-    try {
-        const userId = req.user.id;
+exports.getCart = catchAsync(async (req, res) => {
+  const userId = req.user._id;
 
-        // Fetch cart items with product and topping details
-        // const cartItems = await cart.find({ userId, status: "active" }).populate("productId").populate("toppings.toppingId").populate("productId.vendorId");
+  const cart = await Cart.findOne({ userId })
+    .populate({
+      path: "products.productId",
+      select: "name mrp price images description",
+    })
+    .populate({
+      path: "products.variantId",
+      select: "name price stock",
+    })
+    .lean();
 
-        const cartItems = await cart.find({ userId, status: "active" }).populate([
-            { path: "productId", populate: { path: "vendorId" } },
-            { path: "toppings.toppingId" }
-        ])
+  if (!cart) {
+    return res.status(404).json({
+      success: false,
+      message: "Cart not found for this user",
+      cart: null,
+    });
+  }
 
-        // console.log("Cart Items:", cartItems);
+  let itemMrpTotal = 0;
+  let itemPriceTotal = 0;
 
-        // Transform the cart items to return only required fields
-        const items = cartItems.map(item => ({
-            cart_id: item._id,
-            user_id: item.userId,
-            product_id: item.productId?._id,
-            primary_image: item.productId?.primary_image,
-            name: item.productId?.name,
-            vendorName: item.productId?.vendorId?.name,
-            shortDescription: item.productId?.shortDescription,
-            price: item.productId?.vendorSellingPrice,
-            toppings: item.toppings.map(topping => ({
-                topping_id: topping.toppingId?._id,
-                name: topping.toppingId?.name,
-                price: topping.price
-            }))
-        }));
+  for (const prod of cart.products) {
+    const quantity = prod.quantity || 1;
+    const productMrp = prod.productId?.mrp || 0;
+    // Use variant price if available, else product price
+    const productPrice = prod.variantId?.price ?? prod.productId?.price ?? 0;
 
-        const subTotal = cartItems.reduce((sum, item) => sum + item.finalPrice, 0);
+    itemMrpTotal += productMrp * quantity;
+    itemPriceTotal += productPrice * quantity;
+  }
 
-        return res.status(200).json({
-            success: true,
-            items,
-            subTotal,
-            total: subTotal
-        });
+  // Example fixed charges - you can modify as per your logic
+  const handlingCharge = 20;
+  const deliveryCharge = 50;
 
-    } catch (error) {
-        console.error("GetCart Error:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Server error while retrieving cart.",
-            error: error.message
-        });
-    }
-};
+  const grandTotal = itemPriceTotal + handlingCharge + deliveryCharge;
+
+  return res.status(200).json({
+    success: true,
+    message: "Cart retrieved successfully",
+    cart,
+    itemMrpTotal,
+    itemPriceTotal,
+    handlingCharge,
+    deliveryCharge,
+    grandTotal,
+  });
+});

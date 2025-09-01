@@ -53,7 +53,7 @@ exports.validateNewCartDelivery = async (req, res) => {
         { lat: shopLat, long: shopLong },
         { lat: addrLat, long: addrLong },
         apiKey
-      ); 
+      );
 
       const km = parseFloat(distance.replace(" km", ""));
       if (isNaN(km) || km > 5) {

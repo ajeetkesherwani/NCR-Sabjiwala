@@ -10,10 +10,8 @@ const driverSchema = new Schema({
     password: { type: String },
     address: String,
     image: { type: String, default: '' },
-    serviceType: { type: String, enum: ['food', 'grocery'], default: 'food' },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
     licenseNumber: { type: String, trim: true },
-    adharNumber: { type: String, trim: true },
     otp: { code: String, expiresAt: Date },
     // --- Vehicle basic details ---
     vehicle: {
@@ -31,18 +29,6 @@ const driverSchema = new Schema({
     commission: { type: Number, default: 0 },
     wallet_balance: { type: Number, default: 0 },
     cashCollection: { type: Number, default: 0 },
-    payoutType: { type: String, enum: ['daily', 'weekly', 'monthly'], default: 'weekly' },
-
-    // BANK DETAILS (now handled in Vendor model directly)
-    ifsc: { type: String, default: '' },
-    bankName: { type: String, default: '' },
-    branchName: { type: String, default: '' },
-    accountNo: { type: String, default: '' },
-    benificiaryName: { type: String, default: '' },
-    passbook: { type: String, default: '' },
-
-
-    isVerified: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
     // for firebase cloud messaging
     deviceId: { type: String, required: true },

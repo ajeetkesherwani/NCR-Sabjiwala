@@ -1,6 +1,4 @@
 const Category = require("../../../models/category");
-const Shop = require("../../../models/shop");
-const VendorProduct = require("../../../models/vendorProduct");
 const { calculateOffer } = require("../../../utils/calculateOffer");
 const catchAsync = require("../../../utils/catchAsync");
 const { FOOD_SERVICE_ID } = require("../../../utils/constants");
@@ -20,8 +18,7 @@ exports.getNightCafe = catchAsync(async (req, res) => {
         $or: [
             { isRecommended: true },
             { isFeatured: true }
-        ],
-        isDeleted: false
+        ]
     })
         .populate("shopId", "name shopImage")
         .sort({ createdAt: -1 }).limit(20);

@@ -5,9 +5,10 @@ const catchAsync = require("../../../utils/catchAsync");
 exports.updateSettings = catchAsync(async (req, res, next) => {
     try {
 
-        let { brandName, commission, gst, onboardingFee, plateformFee, finialPlateformFee, email, mobile, address, googleMapApiKey, razorpayKeyId, razorpayKeySecret, driverPayoutLessThan3, driverPayoutMoreThan3, agreement, termAndConditions, privacyPolicy, refundPolicy } = req.body
+        let { brandName, commission, gst, onboardingFee, plateformFee,finialPlateformFee, email, mobile, address, googleMapApiKey, razorpayKeyId, razorpayKeySecret, 
+            agreement, termAndConditions, privacyPolicy, refundPolicy } = req.body
 
-        console.log("req.body", razorpayKeyId, razorpayKeySecret, googleMapApiKey);
+            console.log("req.body", razorpayKeyId, razorpayKeySecret, googleMapApiKey);
 
         const { id } = req.params;
 
@@ -36,8 +37,6 @@ exports.updateSettings = catchAsync(async (req, res, next) => {
         setting.googleMapApiKey = googleMapApiKey || setting.googleMapApiKey
         setting.razorpayKeyId = razorpayKeyId || setting.razorpayKeyId
         setting.razorpayKeySecret = razorpayKeySecret || setting.razorpayKeySecret
-        setting.driverPayoutLessThan3 = driverPayoutLessThan3 || setting.driverPayoutLessThan3
-        setting.driverPayoutMoreThan3 = driverPayoutMoreThan3 || setting.driverPayoutMoreThan3
         setting.agreement = agreement || setting.agreement
         setting.termAndConditions = termAndConditions || setting.termAndConditions
         setting.privacyPolicy = privacyPolicy || setting.privacyPolicy

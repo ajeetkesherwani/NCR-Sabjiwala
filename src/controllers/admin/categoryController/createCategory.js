@@ -1,36 +1,42 @@
+const path = require("path");
 const Category = require("../../../models/category");
 const AppError = require("../../../utils/AppError");
 const catchAsync = require("../../../utils/catchAsync");
 
-exports.createCategory = catchAsync(async (req, res) => {
-    let { name, cat_id, type, serviceId } = req.body
+exports.createCategory = catchAsync(async (req, res, next) => {
+    const { name, cat_id } = req.body;
 
-    if (!name || !name.trim()) return new AppError(`name is required,`, 400);
-
-    let imagePath;
-    if (req.files && req.files.image) {
-        const url = `${req.files.image[0].destination}/${req.files.image[0].filename}`;
-        imagePath = url;
-    } else {
-        imagePath = "";
+    // === Validate category name ===
+    if (!name || !name.trim()) {
+        return next(new AppError("Name is required", 400));
     }
 
-    let category;
-    let message;
+    // === Handle image upload ===
+    let imagePath = "";
+    if (req.files && req.files.image && req.files.image.length > 0) {
+        const file = req.files.image[0];
+        imagePath = path.join(file.destination, file.filename).replace(/\\/g, "/");
+    }
+
+    // === Create Category or Subcategory ===
+    const categoryData = {
+        name: name.trim(),
+        image: imagePath
+    };
+
     if (cat_id) {
-        category = new Category({ name, image: imagePath, cat_id, type, serviceId })
-        message = "Sub Category added successfully"
-    } else {
-        category = new Category({ name, image: imagePath, type, serviceId })
-        message = "Category added successfully"
+        categoryData.cat_id = cat_id;
     }
 
-    await category.save()
+    const category = new Category(categoryData);
+    await category.save();
 
+    // === Send response ===
     return res.status(201).json({
         status: true,
-        message: message,
+        message: cat_id
+            ? "Subcategory added successfully"
+            : "Category added successfully",
         data: { category }
-    })
-
-})
+    });
+});

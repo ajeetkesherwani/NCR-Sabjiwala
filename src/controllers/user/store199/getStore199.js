@@ -1,7 +1,5 @@
 const Explore = require("../../../models/explore");
 const exploreSection = require("../../../models/exploreSection");
-const store199Product = require("../../../models/store199Product");
-const VendorProduct = require("../../../models/vendorProduct");
 const AppError = require("../../../utils/AppError");
 const { calculateOffer } = require("../../../utils/calculateOffer");
 const catchAsync = require("../../../utils/catchAsync");
@@ -31,7 +29,7 @@ exports.getStore199 = catchAsync(async (req, res) => {
     //     });
     // }
 
-    const allProductRaw = await VendorProduct.find({ vendorSellingPrice: 199, status: "active", isDeleted: false }).sort({ createdAt: -1 }).populate(["categoryId", "brandId", "vendorId"]);
+    const allProductRaw = await VendorProduct.find({ vendorSellingPrice: 199, status: "active" }).sort({ createdAt: -1 }).populate(["categoryId", "brandId", "vendorId"]);
     if (allProductRaw.length == 0) {
         return res.status(200).json({
             status: "false",

@@ -7,13 +7,10 @@ exports.getOrder = catchAsync(async (req, res, next) => {
         const { orderId } = req.params;
 
         const order = await Order.findById(orderId)
-            .populate("productData.product_id") // Populate product info
+            .populate("items.productId") // Populate product info
             .populate("userId", "name email") // Populate user info (select fields)
-            .populate("addressId") // Full address
-            .populate("couponId") // If applied
-            .populate("shopId", "name location packingCharge") // Shop details
+            .populate("deliveryAddressId") // Full address
             .populate("assignedDriver", "name")
-            .populate("vendorId", "name email"); // Vendor info
 
         if (!order) {
             return res.status(404).json({ success: false, message: "Order not found" });

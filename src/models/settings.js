@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const razorpay = require("../utils/razorpayInstance");
 
 const settingSchema = mongoose.Schema({
+    // type: { type: String, default: "" },
     brandName: { type: String, default: "" },
     logo: { type: String, default: "" },
     commission: { type: String, default: "" },
@@ -15,10 +16,6 @@ const settingSchema = mongoose.Schema({
     googleMapApiKey: { type: String, default: "" },
     razorpayKeyId: { type: String, default: "" },
     razorpayKeySecret: { type: String, default: "" },
-
-    driverPayoutLessThan3:{type: Number, default: 0},
-    driverPayoutMoreThan3:{type: Number, default: 0},
-
     agreement: { type: String, default: "" },
     termAndConditions: { type: String, default: "" },
     privacyPolicy: { type: String, default: "" },

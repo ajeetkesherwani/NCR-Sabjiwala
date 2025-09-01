@@ -1,5 +1,4 @@
-const VendorProduct = require("../../../models/vendorProduct");
-const Shop = require("../../../models/shop");
+
 const newCart = require("../../../models/newCart");
 const User = require("../../../models/user");
 

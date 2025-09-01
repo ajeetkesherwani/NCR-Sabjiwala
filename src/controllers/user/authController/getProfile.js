@@ -19,8 +19,6 @@ exports.getProfile = catchAsync(async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 mobileNo: user.mobileNo,
-                referredBy: user.referredByCodeUse ? "DONE" : "",
-                referralCode: user.referralCode ? user.referralCode : "N/A",
                 email: user.email,
                 profileImage: user.profileImage,
                 status: user.status,

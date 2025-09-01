@@ -8,13 +8,24 @@ const AppError = require("./utils/AppError");
 const globalErrorHandler = require("./controllers/errorController");
 
 const app = express();
-app.use(cors());
+
+const allowedOrigins = ['http://localhost:5173', "https://ncrsabziwala.com"];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 app.use(morgan("dev"));
 app.use(cookieParser());
 // app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 
 const router = express.Router();

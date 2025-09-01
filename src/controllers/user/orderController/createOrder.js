@@ -1,93 +1,97 @@
-const VendorProduct = require("../../../models/vendorProduct");
+const Cart = require("../../../models/cart");
+const UserAddress = require("../../../models/address");
 const Order = require("../../../models/order");
+const catchAsync = require("../../../utils/catchAsync");
 
-// let bookingCounter = 3; // Persist in DB in production
+exports.createOrder = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const { addressId, paymentMethod, couponCode, discountAmount, remark } =
+    req.body;
 
-const createOrder = async (req, res) => {
-    try {
-        const {
-            productData: prod,
-            addressId,
-            deliveryDate,
-            deliveryTime,
-            couponId = null,
-            couponCode = "",
-            couponAmount = 0,
-            deliveryCharge,
-            finalTotalPrice,
-            paymentMode,
-            razorpayOrderId = null
-        } = req.body;
+  if (!addressId) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Address ID is required" });
+  }
 
-        console.log('Request body:', req.body);
+  // Fetch user's cart
+  const cart = await Cart.findOne({ userId })
+    .populate("products.productId")
+    .populate("products.variantId");
 
-        const userId = req.user._id;
+  if (!cart || cart.products.length === 0) {
+    return res.status(400).json({ success: false, message: "Cart is empty" });
+  }
 
-        // Generate unique booking ID (e.g., ORD-001)
-        const orderCount = await Order.countDocuments();
-        const booking_id = `ORD-${String(orderCount + 1).padStart(3, '0')}`;
+  // Fetch user's address document
+  const userAddress = await UserAddress.findOne({ userId });
+  if (!userAddress) {
+    return res
+      .status(404)
+      .json({ success: false, message: "User address document not found" });
+  }
 
-        // Fetch vendorProduct to derive shop and vendor
-        const productDetails = await VendorProduct.findById(prod.product_id)
-            .populate('shopId')
-            .populate('vendorId');
+  const address = userAddress.addresses.id(addressId);
+  if (!address) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Address not found" });
+  }
 
-        if (!productDetails || !productDetails.shopId || !productDetails.vendorId) {
-            return res.status(400).json({ error: 'Invalid product/shop/vendor information' });
-        }
+  // Calculate totals
+  let itemPriceTotal = 0;
+  cart.products.forEach((prod) => {
+    const price = prod.variantId?.price ?? prod.productId?.price ?? 0;
+    const qty = prod.quantity ?? 1;
+    itemPriceTotal += price * qty;
+  });
 
-        const shopId = productDetails.shopId._id;
-        const vendorId = productDetails.vendorId._id;
-        const packingCharge = productDetails.shopId.packingCharge || 0;
-        // const deliveryCharge = 10; // Can be dynamic
+  const handlingCharge = 50;
+  const deliveryCharge = 100;
 
-        // Commission calculation
-        const commissionRate = productDetails.commissionRate || 0;
-        const commissionAmount = (prod.price * prod.quantity * commissionRate) / 100;
+  // Calculate grand total considering discount
+  let grandTotal = itemPriceTotal + handlingCharge + deliveryCharge;
+  if (discountAmount) {
+    grandTotal -= discountAmount;
+    if (grandTotal < 0) grandTotal = 0;
+  }
 
-        // Totals
-        const prodTotal = Math.round(prod.finalPrice);
-        const afterCouponAmount = Math.round(prodTotal - couponAmount);
-        // const finalTotalPrice = Math.round(afterCouponAmount + packingCharge);
-        // const finalTotalPrice = Math.round(afterCouponAmount + deliveryCharge + packingCharge);
-        // const finalTotalPrice = prod.finalPrice || Math.round(afterCouponAmount + deliveryCharge + packingCharge);
-        // console.log('Final Total Price:', prod.finalPrice);
-
-        // Build and save order document
-        const order = new Order({
-            booking_id,
-            shopId,
-            vendorId,
-            productData: prod,
-            itemTotal: prodTotal,
-            couponId,
+  // Create order data
+  const newOrder = new Order({
+    userId,
+    products: cart.products.map((prod) => ({
+      productId: prod.productId._id,
+      variantId: prod.variantId?._id,
+      quantity: prod.quantity,
+      price: prod.variantId?.price ?? prod.productId?.price,
+    })),
+    shippingAddress: address.toObject(),
+    paymentMethod,
+    itemPriceTotal,
+    handlingCharge,
+    deliveryCharge,
+    grandTotal,
+    status: "pending",
+    remark,
+    couponUsage: couponCode
+      ? [
+          {
             couponCode,
-            couponAmount,
-            afterCouponAmount,
-            userId,
-            addressId,
-            shopId,
-            vendorId,
-            deliveryDate,
-            deliveryTime,
-            deliveryCharge: Math.round(deliveryCharge),
-            packingCharge,
-            commissionRate,
-            commissionAmount,
-            finalTotalPrice,
-            orderStatus: 'pending',
-            paymentMode,
-            paymentStatus: paymentMode === 'online' ? 'paid' : 'pending',
-            paymentId: paymentMode === 'online' ? razorpayOrderId : null,
-            razorpayOrderId: paymentMode === 'online' ? razorpayOrderId : null,
-        });
+            discountAmount: discountAmount || 0,
+          },
+        ]
+      : [],
+  });
 
-        await order.save();
-        return res.status(201).json({ success: true, order });
-    } catch (error) {
-        console.error('Error creating order:', error);
-        return res.status(500).json({ success: false, message: 'Server Error', error: error.message });
-    }
-};
+  await newOrder.save();
 
-module.exports = createOrder;
+  // Clear cart after order is placed
+  cart.products = [];
+  await cart.save();
+
+  return res.status(201).json({
+    success: true,
+    message: "Order placed successfully",
+    order: newOrder,
+  });
+});

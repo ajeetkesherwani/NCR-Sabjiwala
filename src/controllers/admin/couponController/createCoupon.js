@@ -3,7 +3,7 @@ const AppError = require("../../../utils/AppError");
 const catchAsync = require("../../../utils/catchAsync");
 
 exports.createCoupon = catchAsync(async (req, res, next) => {
-    let { code, discountType, discountValue, minOrderAmount, usageLimit, startDate, expiryDate, singlePersonUsageLimit } = req.body;
+    let { code, discountType, discountValue, minOrderAmount, usageLimit, startDate, expiryDate } = req.body;
 
     // Validate required fields
     if (!code || !code.trim()) return next(new AppError("Coupon code is required.", 400));
@@ -26,7 +26,6 @@ exports.createCoupon = catchAsync(async (req, res, next) => {
         usageLimit: usageLimit || 0,
         startDate,
         expiryDate,
-        singlePersonUsageLimit,
         status: "active"
     });
 

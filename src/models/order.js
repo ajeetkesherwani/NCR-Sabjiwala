@@ -1,47 +1,61 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const mongoose = require("mongoose");
 
-const ProductDataSchema = new Schema({
-    product_id: { type: Schema.Types.ObjectId, ref: 'VendorProduct', required: true },
-    price: { type: Number, required: true },
-    quantity: { type: Number, required: true },
-    toppings: [
-        {
-            toppingId: { type: Schema.Types.ObjectId, ref: "Toppins", required: true, },
-            price: { type: Number, required: true, min: 0, }
-        }
+const couponUsageSchema = new mongoose.Schema({
+  couponCode: { type: String, required: true },
+  discountAmount: { type: Number, required: true },
+  usedAt: { type: Date, default: Date.now },
+});
+
+const orderSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    products: [
+      {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        variantId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "ProductVarient",
+        },
+        quantity: { type: Number, required: true, min: 1 },
+        price: { type: Number, required: true },
+      },
     ],
-    finalPrice: { type: Number, required: true }
-}, { _id: false });
+    shippingAddress: {
+      addressType: { type: String, required: true },
+      floor: { type: String },
+      houseNoOrFlatNo: { type: String, required: true },
+      landmark: { type: String },
+      pincode: { type: String, required: true },
+      city: { type: String, required: true },
+      receiverName: { type: String, required: true },
+      receiverNo: { type: String, required: true },
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["cod", "card", "netbanking", "upi", "online"],
+      required: true,
+    },
+    itemPriceTotal: { type: Number, required: true },
+    handlingCharge: { type: Number, required: true },
+    deliveryCharge: { type: Number, required: true },
+    grandTotal: { type: Number, required: true },
+    remark: { type: String }, // Any remarks like "First time use" or "Applied during sale"
+    status: {
+      type: String,
+      enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+      default: "pending",
+    },
+    couponUsage: [couponUsageSchema], // Array to track coupon usage in this order
+  },
+  { timestamps: true }
+);
 
-const OrderSchema = new Schema({
-    booking_id: { type: String, required: true, unique: true },
-    shopId: { type: Schema.Types.ObjectId, ref: 'Shop', required: true },
-    vendorId: { type: Schema.Types.ObjectId, ref: 'Vendor', required: true },
-    productData: { type: ProductDataSchema, required: true, },
-    itemTotal: { type: Number, required: true },
-    couponId: { type: Schema.Types.ObjectId, ref: 'Coupon', default: null },
-    couponCode: { type: String, default: "" },
-    couponAmount: { type: Number, default: 0 },
-    afterCouponAmount: { type: Number, required: true },
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    addressId: { type: Schema.Types.ObjectId, ref: 'Address', required: true },
-    deliveryDate: { type: Date, required: true },
-    deliveryTime: { type: String, required: true },
-    deliveryCharge: { type: Number, default: 0 },
-    packingCharge: { type: Number, default: 0 },
-    commissionRate: { type: Number, required: true },
-    commissionAmount: { type: Number, required: true },
-    finalTotalPrice: { type: Number, required: true },
-    orderStatus: { type: String, enum: ['pending', 'accepted', 'preparing', 'ready', 'shipped', 'running', 'out of delivery', 'delivered', 'cancelled'], default: 'pending' },
-    preparationTime: { type: Number, default: null },
-    preparationStartedAt: { type: Date, default: null },
-    readyAt: { type: Date, default: null },
-    paymentMode: { type: String, enum: ['cash', 'card', 'upi', 'wallet', 'cod', 'online'], required: true },
-    paymentStatus: { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
-    paymentId: { type: String, default: null },
-    assignedDriver: { type: Schema.Types.ObjectId, ref: 'Driver', default: null },
-    razorpayOrderId: { type: String, default: null },
-}, { timestamps: true });
-
-module.exports = mongoose.model('Order', OrderSchema);
+module.exports = mongoose.model("Order", orderSchema);

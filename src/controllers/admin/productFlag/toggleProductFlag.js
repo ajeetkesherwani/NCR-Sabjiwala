@@ -1,4 +1,5 @@
-const VendorProduct = require("../../../models/vendorProduct");
+
+const Product = require("../../../models/product");
 const catchAsync = require("../../../utils/catchAsync");
 
 exports.toggleProductFlag = catchAsync(async (req, res) => {
@@ -29,7 +30,7 @@ exports.toggleProductFlag = catchAsync(async (req, res) => {
     }
 
     // ✅ Fetch product
-    const product = await VendorProduct.findById(productId);
+    const product = await Product.findById(productId);
     if (!product) {
         return res.status(404).json({
             status: false,

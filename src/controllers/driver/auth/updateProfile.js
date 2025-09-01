@@ -5,7 +5,7 @@ const catchAsync = require("../../../utils/catchAsync");
 exports.updateProfile = catchAsync(async (req, res, next) => {
     const driverId = req.driver._id;
 
-    const { name, email, mobileNo, address, licenseNumber,adharNumber, vehicleType, vehicleModel, registrationNumber, insuranceNumber } = req.body;
+    const { name, email, mobileNo, address, licenseNumber, vehicleType, vehicleModel, registrationNumber, insuranceNumber } = req.body;
 
     const driver = await Driver.findById(driverId);
     if (!driver) return next(new AppError("Driver not found", 404));
@@ -34,7 +34,6 @@ exports.updateProfile = catchAsync(async (req, res, next) => {
     if (mobileNo) driver.mobileNo = mobileNo;
     if (address) driver.address = address;
     if (licenseNumber) driver.licenseNumber = licenseNumber;
-    if (adharNumber) driver.adharNumber = adharNumber;
 
     if (vehicleType) driver.vehicle.type = vehicleType;
     if (vehicleModel) driver.vehicle.model = vehicleModel;

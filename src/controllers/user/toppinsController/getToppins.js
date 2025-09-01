@@ -1,4 +1,4 @@
-const Toppins = require("../../../models/toppins");
+
 const catchAsync = require("../../../utils/catchAsync");
 
 exports.getAllToppins = catchAsync(async (req, res) => {

@@ -11,26 +11,20 @@ const updateProfile = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        // Validate required fields
-        const referredUser = await User.findOne({ referralCode: updateData.referredCode });
-
         // Handle image upload if provided
         if (req.files && req.files.image && req.files.image.length > 0) {
             user.profileImage = `${req.files.image[0].destination}/${req.files.image[0].filename}`;
         }
 
         // Allowed fields for update
-        user.name = updateData.name || user.name;
-        user.email = updateData.email || user.email;
-        if (referredUser) {
-            user.referredBy = referredUser._id;
-        }
+        const allowedUpdates = ['name', 'email'];
+        allowedUpdates.forEach(field => {
+            if (updateData[field] !== undefined) {
+                user[field] = updateData[field];
+            }
+        });
 
-        if (updateData.referredCode) {
-            user.referredByCodeUse = true;
-        }
-
-        user.isNewUser = false;
+        user.isNewUser = false; 
 
         await user.save();
 

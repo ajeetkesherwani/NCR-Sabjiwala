@@ -1,6 +1,5 @@
 const Driver = require("../../../models/driver");
 const driverRating = require("../../../models/driverRating");
-const newOrder = require("../../../models/newOrder");
 
 
 // POST /api/driver-ratings
@@ -17,11 +16,6 @@ exports.driverRatingCreate = async (req, res) => {
 
         // Create new rating
         const newRating = await driverRating.create({ userId, driverId, orderId, rating, review, });
-
-        const newOrderUpdate = await newOrder.findByIdAndUpdate(orderId, { isRated: true });
-                if (!newOrderUpdate) {
-                    return res.status(404).json({ success: false, message: "Order not found." });
-                }
 
         // Recalculate driver average rating
         const agg = await driverRating.aggregate([

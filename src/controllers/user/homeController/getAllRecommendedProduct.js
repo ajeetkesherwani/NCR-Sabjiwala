@@ -1,6 +1,5 @@
 const Category = require("../../../models/category");
 const User = require("../../../models/user");
-const VendorProduct = require("../../../models/vendorProduct");
 const catchAsync = require("../../../utils/catchAsync");
 
 exports.getAllRecommendedProduct = catchAsync(async (req, res, next) => {
@@ -15,7 +14,7 @@ exports.getAllRecommendedProduct = catchAsync(async (req, res, next) => {
         const userType = user.userType;
 
 
-        const products = await VendorProduct.find({ status: "active", type: userType , serviceId, isDeleted: false}).populate("shopId");
+        const products = await VendorProduct.find({ status: "active", type: userType , serviceId}).populate("shopId");
 
         if (!products || products.length === 0) {
             return res.status(404).json({

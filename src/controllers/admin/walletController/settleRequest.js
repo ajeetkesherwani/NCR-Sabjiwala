@@ -1,4 +1,4 @@
-const Vendor = require("../../../models/vendor");
+
 const Driver = require("../../../models/driver");
 const WalletHistory = require("../../../models/walletHistory");
 const WalletRequest = require("../../../models/walletRequest");

@@ -3,8 +3,8 @@ const catchAsync = require("../../../utils/catchAsync");
 
 exports.createServiceabelAreas = catchAsync(async (req, res) => {
     try {
-        const { pincode, city, state, isFoodAvailable, isGroceryAvailable } = req.body
-        const area = new serviceableAreas({ pincode, city, state, isFoodAvailable, isGroceryAvailable });
+        const { pincode, city, state } = req.body
+        const area = new serviceableAreas({pincode, city, state});
         await area.save();
         res.status(200).json({
             success: true,

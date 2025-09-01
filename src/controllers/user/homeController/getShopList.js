@@ -1,7 +1,5 @@
 const Setting = require("../../../models/settings");
-const Shop = require("../../../models/shop");
 const User = require("../../../models/user");
-const VendorProduct = require("../../../models/vendorProduct");
 const catchAsync = require("../../../utils/catchAsync");
 const { FOOD_SERVICE_ID, MART_SERVICE_ID } = require("../../../utils/constants");
 const getDistanceAndTime = require("../../../utils/getDistanceAndTime");
@@ -27,6 +25,7 @@ exports.getShopList = catchAsync(async (req, res, next) => {
         const limit = 10;
         const skip = (page - 1) * limit;
 
+        // serviceId - 67ecc79120a93fc0b92a8b19 food // 67ecc79a20a93fc0b92a8b1b grocery
         let serviceId;
         if (user.serviceType == "food") {
             serviceId = FOOD_SERVICE_ID;
@@ -50,7 +49,10 @@ exports.getShopList = catchAsync(async (req, res, next) => {
         const nearbyShopIds = allNearbyShops.map(shop => shop._id);
 
         // Step 3: Find products for those shops
-        const products = await VendorProduct.find({ status: "active", shopId: { $in: nearbyShopIds }, isDeleted: false }).populate("shopId", "name shopImage galleryImage address lat long location");
+        const products = await VendorProduct.find({
+            status: "active",
+            shopId: { $in: nearbyShopIds },
+        }).populate("shopId", "name shopImage galleryImage address lat long location");
 
         // Step 4: Collect unique shops that have products
         const uniqueShopsMap = new Map();
@@ -68,7 +70,6 @@ exports.getShopList = catchAsync(async (req, res, next) => {
                     distance: null,
                     shopLat: parseFloat(p.shopId.lat || 0),
                     shopLong: parseFloat(p.shopId.long || 0),
-                    rating: p.shopId.rating || 0,
                 };
                 uniqueShopsMap.set(p.shopId._id.toString(), shopData);
 

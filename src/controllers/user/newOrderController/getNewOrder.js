@@ -2,8 +2,6 @@ const newOrder = require("../../../models/newOrder");
 
 exports.getNewOrder = async (req, res) => {
     try {
-        const userId = req.user.id;
-        if (!userId) { return res.status(400).json({ success: false, message: "User ID is required" }); }
         const type = req.query.type;
 
         // Get start and end of today (local time)
@@ -12,7 +10,7 @@ exports.getNewOrder = async (req, res) => {
         const tomorrow = new Date(today);
         tomorrow.setDate(today.getDate() + 1);
 
-        let filter = {userId};
+        let filter = {};
 
         // if (type === "today") {
         //     filter.deliveryDate = { $gte: today, $lt: tomorrow };

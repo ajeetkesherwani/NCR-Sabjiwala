@@ -21,7 +21,6 @@ const { deleteDriver } = require("../controllers/driver/auth/deleteDriver");
 const { getHomeData } = require("../controllers/driver/home/getHomeData");
 const { requestPasswordReset } = require("../controllers/driver/forgotPassword/requestPasswordReset");
 const { resetPasswordWithOtp } = require("../controllers/driver/forgotPassword/resetPasswordWithOtp");
-const { getCms } = require("../controllers/driver/cmsController/getCms");
 
 
 //------------------------------------------------
@@ -87,11 +86,6 @@ router.patch("/order/:orderId", driverAuthenticate, orderStatusChange)
 router.get("/wallet", driverAuthenticate, getDriverWallet)
 router.post("/wallet/request", driverAuthenticate, createWalletRequest)
 router.get("/wallet/request", driverAuthenticate, getWalletRequest)
-
-//------------------------------------------------
-// cms
-//------------------------------------------------
-router.get("/cms", getCms);
 
 //------------------------------------------------
 // delete driver

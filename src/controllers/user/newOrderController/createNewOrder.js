@@ -1,11 +1,9 @@
 
 const { v4: uuidv4 } = require('uuid');
 const newCart = require('../../../models/newCart');
-const Shop = require('../../../models/shop');
 const newOrder = require('../../../models/newOrder');
 const User = require('../../../models/user');
 const Address = require('../../../models/address');
-const WalletHistory = require('../../../models/walletHistory');
 
 exports.createNewOrder = async (req, res) => {
     try {
@@ -16,8 +14,6 @@ exports.createNewOrder = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found.' });
         }
-
-        const orderCount = await newOrder.countDocuments({ userId });
 
         const addressId = await Address.findOne({ userId, isDefault: true });
         if (!addressId) {
@@ -64,16 +60,28 @@ exports.createNewOrder = async (req, res) => {
             const afterCouponAmount = Math.max(0, itemTotal - couponAmount);
             const finalTotalPrice = afterCouponAmount + deliveryCharge + packingCharge;
 
-            const order = new newOrder({ booking_id, shopId, vendorId, userId, addressId, deliveryDate, deliveryTime, paymentMode, productData, itemTotal, couponId: coupon?.id || null, couponCode: coupon?.code || '', couponAmount, afterCouponAmount, deliveryCharge, packingCharge, finalTotalPrice, serviceType: cart.serviceType, paymentId, paymentStatus });
-
-            io.to(`vendor-${vendorId}`).emit("new-order", {
-                _id: order._id,
-                customerName: user.name,
-                items: productData,
-                shopName: shop.name,
-                total: finalTotalPrice
+            const order = new newOrder({
+                booking_id,
+                shopId,
+                vendorId,
+                userId,
+                addressId,
+                deliveryDate,
+                deliveryTime,
+                paymentMode,
+                productData,
+                itemTotal,
+                couponId: coupon?.id || null,
+                couponCode: coupon?.code || '',
+                couponAmount,
+                afterCouponAmount,
+                deliveryCharge,
+                packingCharge,
+                finalTotalPrice,
+                serviceType: cart.serviceType,
+                paymentId,
+                paymentStatus,
             });
-
 
             await order.save();
             orders.push(order);
@@ -81,32 +89,6 @@ exports.createNewOrder = async (req, res) => {
 
         cart.status = 'ordered';
         await cart.save();
-
-        if (orderCount === 0) {
-            if (user.referredBy !== null && user.referredBy !== undefined && user.referredBy !== '') {
-                const referredUser = await User.findOne({ _id: user.referredBy });
-                if (referredUser) {
-                    let bonusAmount = 10;
-                    await WalletHistory.create({
-                        userId: referredUser._id,
-                        action: 'credit',
-                        amount: bonusAmount,
-                        balance_after_action: referredUser.wallet + 10,
-                        description: `credit ${bonusAmount} by goRabit for referral bonus`,
-                    });
-
-                    referredUser.wallet += bonusAmount;
-                    await referredUser.save();
-                }
-            }
-        }
-
-        // New order notification
-        // io.emit("new-order", {
-        //     _id: "order123",
-        //     customerName: user.name,
-        //     items: [{ name: "Pizza" }, { name: "Burger" }]
-        // });
 
         res.status(201).json({
             success: true,

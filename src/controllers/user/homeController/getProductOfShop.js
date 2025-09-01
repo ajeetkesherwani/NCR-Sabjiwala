@@ -1,5 +1,4 @@
 const User = require("../../../models/user");
-const VendorProduct = require("../../../models/vendorProduct");
 const { calculateOffer } = require("../../../utils/calculateOffer");
 const catchAsync = require("../../../utils/catchAsync");
 
@@ -30,7 +29,6 @@ exports.getProductOfShop = catchAsync(async (req, res) => {
         status: "active",
         shopId,
         ...typeFilter,
-        isDeleted: false
     });
 
     if (!productsRaw.length) {

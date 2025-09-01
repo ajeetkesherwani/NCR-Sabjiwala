@@ -2,8 +2,6 @@ const Driver = require("../../../models/driver");
 const newOrder = require("../../../models/newOrder");
 const Order = require("../../../models/order");
 const Setting = require("../../../models/settings");
-const Shop = require("../../../models/shop");
-const Vendor = require("../../../models/vendor");
 const WalletHistory = require("../../../models/walletHistory");
 const WalletTransaction = require("../../../models/walletTransaction");
 const catchAsync = require("../../../utils/catchAsync");
@@ -34,12 +32,6 @@ exports.orderStatusChange = catchAsync(async (req, res) => {
             await driver.save();
             await order.save();
             return res.status(200).json({ status: true, message: "Order accepted successfully" });
-        }
-
-        if (status == "picked up") {
-            order.orderStatus = "picked up";
-            await order.save();
-            return res.status(200).json({ status: true, message: "Order picked up successfully" });
         }
 
         const { itemTotal, couponAmount, afterCouponAmount, packingCharge, deliveryCharge, shopId, vendorId } = order;

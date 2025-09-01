@@ -2,16 +2,13 @@ const bcrypt = require('bcrypt');
 const mongoose = require("mongoose");
 
 const adminSchema = mongoose.Schema({
-    image: { type: String, default: "" },
+    image: { type: String },
     name: { type: String, required: true },
     email: { type: String, required: true },
-    phoneNo: { type: String, default: "" },
+    phoneNo: { type: String, required: true },
     password: { type: String, required: true },
-    address: { type: String, default: "" },
-    bio: { type: String, default: "" },
-    isSuperAdmin: { type: Boolean, default: false },
-    role: { type: mongoose.Schema.Types.ObjectId, ref: "Role" },
-    isBlocked: { type: Boolean, default: false },
+    address: { type: String, required: true },
+    bio: { type: String, required: true },
 }, {
     timestamps: true
 });

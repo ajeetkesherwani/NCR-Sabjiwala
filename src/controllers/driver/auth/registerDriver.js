@@ -3,10 +3,10 @@ const AppError = require("../../../utils/AppError");
 const catchAsync = require("../../../utils/catchAsync");
 const bcrypt = require('bcrypt');
 
-exports.registerDriver = catchAsync(async (req, res, next) => { 
+exports.registerDriver = catchAsync(async (req, res, next) => {
     const {
-        name, email, mobileNo, password, address, licenseNumber,adharNumber,
-        vehicleType, vehicleModel, registrationNumber, insuranceNumber, deviceId, deviceToken, serviceType
+        name, email, mobileNo, password, address, licenseNumber,
+        vehicleType, vehicleModel, registrationNumber, insuranceNumber, deviceId, deviceToken
     } = req.body;
 
     const emailExists = await Driver.findOne({ email });
@@ -29,7 +29,7 @@ exports.registerDriver = catchAsync(async (req, res, next) => {
     var hashPassword = await bcrypt.hash(password, 12)
 
     const newDriver = await Driver.create({
-        name, email, mobileNo, address, licenseNumber,adharNumber,
+        name, email, mobileNo, address, licenseNumber,
         password: hashPassword,
         vehicle: {
             type: vehicleType,
@@ -42,7 +42,6 @@ exports.registerDriver = catchAsync(async (req, res, next) => {
         insuranceImage,
         licenseImage,
         adharImage,
-        serviceType,
         deviceId,
         deviceToken
     });

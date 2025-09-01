@@ -1,15 +1,15 @@
-const VendorProduct = require("../../../models/vendorProduct");
+const Product = require("../../../models/product");
 const catchAsync = require("../../../utils/catchAsync");
 
 exports.getAllProductExplore = catchAsync(async (req, res) => {
 
-    const allProductRaw = await VendorProduct.find({ isDeleted: false }).select("name primary_image").sort({ createdAt: -1 }).populate("vendorId", "name").populate("shopId", "name").sort({ createdAt: -1 })
+    const allProductRaw = await Product.find().select("name primary_image").sort({ createdAt: -1 }).populate("vendorId", "name").populate("shopId", "name").sort({ createdAt: -1 })
 
     const allProduct = allProductRaw.map(product => {
         return {
             _id: product._id,
             name: product.name,
-            primary_image: product.primary_image,
+            primary_image: "primary",
             vendorName: product.vendorId ? product.vendorId.name : "N/A",
             shopName: product.shopId ? product.shopId.name : "N/A"
         }

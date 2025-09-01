@@ -1,31 +1,39 @@
-const cart = require("../../../models/cart");
+const Cart = require("../../../models/cart");
+const catchAsync = require("../../../utils/catchAsync");
 
-exports.deleteCart = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const cartItemId = req.params.cartItemId;
+exports.deleteCart = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const { productId, variantId } = req.body;
 
-        const deleted = await cart.findOneAndDelete({ _id: cartItemId, userId });
+  if (!productId) {
+    return res
+      .status(400)
+      .json({ success: false, message: "ProductId is required" });
+  }
 
-        if (!deleted) {
-            return res.status(404).json({
-                success: false,
-                message: "Cart item not found or already deleted."
-            });
-        }
+  // Build the filter for the array element to remove
+  const productFilter = { productId };
+  if (variantId) {
+    productFilter.variantId = variantId;
+  }
 
-        return res.status(200).json({
-            success: true,
-            message: "Cart item deleted successfully.",
-            cart_id: deleted._id
-        });
+  // Pull only the matching product from user's cart products array
+  const updatedCart = await Cart.findOneAndUpdate(
+    { userId },
+    { $pull: { products: productFilter } },
+    { new: true }
+  );
 
-    } catch (error) {
-        console.error("DeleteCartItem Error:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Server error while deleting cart item.",
-            error: error.message
-        });
-    }
-};
+  if (!updatedCart) {
+    return res.status(404).json({
+      success: false,
+      message: "Cart not found for this user or product not in cart",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Product removed from cart successfully",
+    cart: updatedCart,
+  });
+});

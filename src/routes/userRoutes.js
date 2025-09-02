@@ -39,6 +39,9 @@ const { getCart } = require("../controllers/user/cartController/getCart");
 const getOrderDetail = require("../controllers/user/orderController/getOrderDetail");
 const getAllOrder = require("../controllers/user/orderController/getAllOrder");
 const {
+  returnOrder,
+} = require("../controllers/user/orderController/returnOrder");
+const {
   getAllBanners,
 } = require("../controllers/user/bannerController/getBanner");
 const { getCms } = require("../controllers/user/cmsController/getCms");
@@ -321,6 +324,7 @@ router.get("/order", userAuthenticate, getAllOrder);
 router.post("/order", userAuthenticate, createOrder);
 router.get("/order/:orderId", userAuthenticate, getOrderDetail);
 router.get("/order/:orderId/status", userAuthenticate, getOrderStatus);
+router.post("/order/:orderId/return", userAuthenticate, returnOrder);
 
 //------------------------------------------------
 // new order
@@ -401,10 +405,13 @@ router.post("/notification/send", async (req, res) => {
 
 //user
 
-router.post("/create", userAuthenticate,
+router.post(
+  "/create",
+  userAuthenticate,
   userAuthenticate,
   fileUploader("userProfile", [{ name: "profileImage", maxCount: 1 }]),
-createUser );
+  createUser
+);
 
 router.get("/list", userAuthenticate, getUser);
 

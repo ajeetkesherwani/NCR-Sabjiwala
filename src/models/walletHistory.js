@@ -6,9 +6,10 @@ const walletHistorySchema = new Schema({
     // vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor', required: false }, // vendor wise settlement
     // driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'Driver', required: false }, // driver wise settlement
     userId: { type: String, required: true },
+    razorpay_id: { type: String, default:"" },
     action: { type: String, required: true }, // e.g., 'credit', 'debit', 'commission', 'withdrawal', 'settlement'
     amount: { type: Number, required: true },
-    balance_after_action: { type: Number, required: true },
+    balance_after_action: { type: Number, },
     description: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
 });

@@ -177,6 +177,14 @@ const {
 const { createUser } = require("../controllers/user/authController/createUser");
 const { getUser } = require("../controllers/user/authController/getUser");
 
+//wallet History
+const { createWalletHistory } = require("../controllers/user/walletController/createWalletHistory");
+const { getWalletHistory } = require("../controllers/user/walletController/getWalletHistory");
+
+//cms page
+const { createCms } = require("../controllers/user/cmsController/createCms");
+const { getCmsPage } = require("../controllers/user/cmsController/getCmsPage");
+
 const router = express.Router();
 
 // router.get("/test", (req,res)=>{
@@ -414,5 +422,14 @@ router.post(
 );
 
 router.get("/list", userAuthenticate, getUser);
+
+//wallet History
+
+router.post("/walletHistory/create", userAuthenticate, createWalletHistory);
+router.get("/walletHistory/list", userAuthenticate, getWalletHistory);
+
+//cms page
+router.post("/cms/create", userAuthenticate, createCms);
+router.get("/cms/list", userAuthenticate, getCmsPage);
 
 module.exports = router;

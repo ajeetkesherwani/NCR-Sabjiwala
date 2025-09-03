@@ -39,6 +39,9 @@ const { getCart } = require("../controllers/user/cartController/getCart");
 const getOrderDetail = require("../controllers/user/orderController/getOrderDetail");
 const getAllOrder = require("../controllers/user/orderController/getAllOrder");
 const {
+  returnOrder,
+} = require("../controllers/user/orderController/returnOrder");
+const {
   getAllBanners,
 } = require("../controllers/user/bannerController/getBanner");
 const { getCms } = require("../controllers/user/cmsController/getCms");
@@ -168,6 +171,20 @@ const {
 const {
   removeFromWishlist,
 } = require("../controllers/user/wishlistController/removeFromWishlist");
+
+//user
+
+const { createUser } = require("../controllers/user/authController/createUser");
+const { getUser } = require("../controllers/user/authController/getUser");
+
+//wallet History
+const { createWalletHistory } = require("../controllers/user/walletController/createWalletHistory");
+const { getWalletHistory } = require("../controllers/user/walletController/getWalletHistory");
+
+//cms page
+const { createCms } = require("../controllers/user/cmsController/createCms");
+const { getCmsPage } = require("../controllers/user/cmsController/getCmsPage");
+
 const router = express.Router();
 
 // router.get("/test", (req,res)=>{
@@ -315,6 +332,7 @@ router.get("/order", userAuthenticate, getAllOrder);
 router.post("/order", userAuthenticate, createOrder);
 router.get("/order/:orderId", userAuthenticate, getOrderDetail);
 router.get("/order/:orderId/status", userAuthenticate, getOrderStatus);
+router.post("/order/:orderId/return", userAuthenticate, returnOrder);
 
 //------------------------------------------------
 // new order
@@ -392,5 +410,26 @@ router.post("/notification/send", async (req, res) => {
     });
   }
 });
+
+//user
+
+router.post(
+  "/create",
+  userAuthenticate,
+  userAuthenticate,
+  fileUploader("userProfile", [{ name: "profileImage", maxCount: 1 }]),
+  createUser
+);
+
+router.get("/list", userAuthenticate, getUser);
+
+//wallet History
+
+router.post("/walletHistory/create", userAuthenticate, createWalletHistory);
+router.get("/walletHistory/list", userAuthenticate, getWalletHistory);
+
+//cms page
+router.post("/cms/create", userAuthenticate, createCms);
+router.get("/cms/list", userAuthenticate, getCmsPage);
 
 module.exports = router;

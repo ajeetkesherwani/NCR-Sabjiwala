@@ -5,13 +5,14 @@ const Admin = require("../../../models/admin");
 
 exports.adminAuthenticate = catchAsync(async (req, res, next) => {
     const token = req.cookies?.adminToken;
-
+console.log("token", token);
     if (!token) {
         return next(new AppError("You are not loggedin.", 404));
     }
 
     const decoded = jwt.verify(token, process.env.JWT_TOKEN_SECRET);
     const admin = await Admin.findById(decoded.id);
+    console.log("admin", admin)
 
     if (!admin) {
         return next(new AppError("Admin no longer exists", 404));

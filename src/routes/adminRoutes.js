@@ -1,10 +1,13 @@
 const express = require("express");
-const { signup } = require("../controllers/admin/auth/signup");
+//=========================== NCR Sabjiwala =============================//
+
+const fileUploader = require("../middleware/fileUploader");
 const { login } = require("../controllers/admin/auth/login");
 const {
   adminAuthenticate,
 } = require("../controllers/admin/auth/adminAuthenticate");
-const fileUploader = require("../middleware/fileUploader");
+
+//category
 const {
   createCategory,
 } = require("../controllers/admin/categoryController/createCategory");
@@ -26,6 +29,9 @@ const {
 const {
   getAllSubCategory,
 } = require("../controllers/admin/categoryController/getAllSubCategory");
+
+//product
+
 const {
   getAllProduct,
 } = require("../controllers/admin/productController/getAllProduct");
@@ -38,6 +44,78 @@ const {
 const {
   createProduct,
 } = require("../controllers/admin/productController/createProduct");
+const {
+  deleteProduct,
+} = require("../controllers/admin/productController/deleteProduct");
+const {
+  updateProduct,
+} = require("../controllers/admin/productController/updateProduct");
+
+//product variant
+const {
+  createProductVarient,
+} = require("../controllers/admin/productVarientController/createProductVarient");
+const {
+  getProductVarient,
+} = require("../controllers/admin/productVarientController/getProductVarient");
+const {
+  editProductVarient,
+} = require("../controllers/admin/productVarientController/editProductVarient");
+const {
+  deleteProductVarientImage,
+} = require("../controllers/admin/productVarientController/deleteProductVarientImage");
+const {
+  deleteProductVarient,
+} = require("../controllers/admin/productVarientController/deleteProductVarient");
+
+//explore
+const {
+  createExplore,
+} = require("../controllers/admin/exploreController/createExplore");
+const {
+  getAllExplore,
+} = require("../controllers/admin/exploreController/getAllExplore");
+const {
+  updateExplore,
+} = require("../controllers/admin/exploreController/updateExplore");
+const {
+  getExplore,
+} = require("../controllers/admin/exploreController/getExplore");
+const {
+  deleteExplore,
+} = require("../controllers/admin/exploreController/deleteExplore");
+
+//explore section
+
+const {
+  createExploreSection,
+} = require("../controllers/admin/exploreSectionController/createExploreSection");
+const {
+  getAllSections,
+} = require("../controllers/admin/exploreSectionController/getAllExploreSection");
+const {
+  getSection,
+} = require("../controllers/admin/exploreSectionController/getExploreSection");
+const {
+  updateSection,
+} = require("../controllers/admin/exploreSectionController/updateExploreSection");
+const {
+  deleteSection,
+} = require("../controllers/admin/exploreSectionController/deleteExploreSection");
+
+//dealsBanner
+const {
+  createDealsBanner,
+} = require("../controllers/admin/DealsBannerController/createDealsBanner");
+const { 
+  getAllDealsBanner 
+} = require("../controllers/admin/DealsBannerController/getDealsBanner");
+const { 
+  getDealsBannerDetail 
+} = require("../controllers/admin/DealsBannerController/getDealsBannerDetail");
+//=========================== NCR Sabjiwala =============================//
+const { signup } = require("../controllers/admin/auth/signup");
+
 const {
   getProductViaService,
 } = require("../controllers/admin/productController/getProductViaService");
@@ -75,40 +153,13 @@ const {
 const {
   getAllBanners,
 } = require("../controllers/admin/bannerController/getBanner");
+  const {
+    deleteBanner,
+  } = require("../controllers/admin/bannerController/deleteBanner");
 const { getAllUsers } = require("../controllers/admin/userController/getUser");
 const { addCms } = require("../controllers/admin/cmsController/addCms");
 const { updateCms } = require("../controllers/admin/cmsController/updateCms");
 const { getCms } = require("../controllers/admin/cmsController/getCms");
-const {
-  createExplore,
-} = require("../controllers/admin/exploreController/createExplore");
-const {
-  getAllExplore,
-} = require("../controllers/admin/exploreController/getAllExplore");
-const {
-  updateExplore,
-} = require("../controllers/admin/exploreController/updateExplore");
-const {
-  getExplore,
-} = require("../controllers/admin/exploreController/getExplore");
-const {
-  deleteExplore,
-} = require("../controllers/admin/exploreController/deleteExplore");
-const {
-  createExploreSection,
-} = require("../controllers/admin/exploreSectionController/createExploreSection");
-const {
-  getAllSections,
-} = require("../controllers/admin/exploreSectionController/getAllExploreSection");
-const {
-  getSection,
-} = require("../controllers/admin/exploreSectionController/getExploreSection");
-const {
-  updateSection,
-} = require("../controllers/admin/exploreSectionController/updateExploreSection");
-const {
-  deleteSection,
-} = require("../controllers/admin/exploreSectionController/deleteExploreSection");
 const {
   orderComplete,
 } = require("../controllers/admin/orderController/orderComplete");
@@ -134,12 +185,6 @@ const {
 const {
   toggleProductFlag,
 } = require("../controllers/admin/productFlag/toggleProductFlag");
-const {
-  deleteProduct,
-} = require("../controllers/admin/productController/deleteProduct");
-const {
-  updateProduct,
-} = require("../controllers/admin/productController/updateProduct");
 const {
   getAllProductExplore,
 } = require("../controllers/admin/exploreController/getAllProduct");
@@ -173,21 +218,6 @@ const {
 const {
   deleteServiceableAreas,
 } = require("../controllers/admin/serviceableAreasController/deleteServiceableAreas");
-const {
-  deleteBanner,
-} = require("../controllers/admin/bannerController/deleteBanner");
-const {
-  createProductVarient,
-} = require("../controllers/admin/productVarientController/createProductVarient");
-const {
-  getProductVarient,
-} = require("../controllers/admin/productVarientController/getProductVarient");
-const {
-  editProductVarient,
-} = require("../controllers/admin/productVarientController/editProductVarient");
-const {
-  deleteProductVarientImage,
-} = require("../controllers/admin/productVarientController/deleteProductVarientImage");
 const getAllOrdersCount = require("../controllers/admin/orderController/getAllOrdersCount");
 const orderInvoice = require("../controllers/admin/orderController/orderInvoice");
 const {
@@ -199,13 +229,7 @@ const {
 const {
   setCategoryOrder,
 } = require("../controllers/admin/categoryController/setCategoryOrder");
-const {
-  deleteProductVarient,
-} = require("../controllers/admin/productVarientController/deleteProductVarient");
 
-const {
-  createDealsBanner,
-} = require("../controllers/admin/DealsBannerController/createDealsBanner");
 
 const { logout } = require("../controllers/admin/auth/logout");
 const router = express.Router();
@@ -371,6 +395,8 @@ router.post(
   ]),
   createDealsBanner
 );
+router.get("/deals-banner/list", adminAuthenticate ,getAllDealsBanner);
+router.get("/deals-banner/list/:id", adminAuthenticate, getDealsBannerDetail);
 //------------------------------------------------
 // driver
 //------------------------------------------------

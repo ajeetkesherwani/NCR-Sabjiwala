@@ -5,37 +5,31 @@ const { Schema } = mongoose;
 const driverSchema = new Schema({
     // --- Driver basic details ---
     name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true },
-    mobileNo: { type: String, required: true, unique: true },
-    password: { type: String },
+    email: { type: String, required: true},
+    mobileNo: { type: String, required: true},
     address: String,
     image: { type: String, default: '' },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
-    licenseNumber: { type: String, trim: true },
-    otp: { code: String, expiresAt: Date },
-    // --- Vehicle basic details ---
-    vehicle: {
-        type: { type: String, required: true, trim: true },
-        model: { type: String, required: true, trim: true },
-        registrationNumber: { type: String, required: true, unique: true, trim: true },
-        insuranceNumber: { type: String, trim: true }
-    },
-    // --- Driver documents ---
-    vehicleRcImage: { type: String, default: '' },
-    insuranceImage: { type: String, default: '' },
-    licenseImage: { type: String, default: '' },
+    aadharNumber: { type: String, trim: true },
     adharImage: { type: String, default: '' },
+    vehicleType: { type: String, required: true, trim: true },
+    vehicleNumber: { type: String, required: true, trim: true },
+    rcFrontImage: { type: String, default: '' },
+    rcBackImage: { type: String, default: '' },
+    dlNumber: { type: String, required: true, trim: true },
     // --- commission and wallet details ---
     commission: { type: Number, default: 0 },
     wallet_balance: { type: Number, default: 0 },
     cashCollection: { type: Number, default: 0 },
     isBlocked: { type: Boolean, default: false },
+    isRegistered: { type: Boolean, default: false },
+    status: { type: Boolean, default: true }, // available or not
+    otp: { code: String, expiresAt: Date },
+    // otpExpire: { type: Date },
+    // --- Device details ---
     // for firebase cloud messaging
     deviceId: { type: String, required: true },
     deviceToken: { type: String, required: true },
-    // current order assigned to driver
-    currentOrderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', default: null },
-    // Add inside driverSchema (anywhere before closing the schema)
     location: {
         type: {
             type: String,

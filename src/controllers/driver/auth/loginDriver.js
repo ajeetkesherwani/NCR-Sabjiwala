@@ -6,25 +6,35 @@ const bcrypt = require('bcrypt');
 const createToken = require("../../../utils/createToken");
 
 exports.loginDriver = catchAsync(async (req, res, next) => {
-    const { mobileNo, password, deviceId, deviceToken } = req.body;
+    const { mobileNo, otp, deviceId, deviceToken } = req.body;
 
-    if (!mobileNo || !password) {
-        return next(new AppError("Mobile No and Password are required.", 400));
+    if (!mobileNo || !otp) {
+        return next(new AppError("Mobile No and Otp are required.", 400));
     }
 
     const driver = await Driver.findOne({ mobileNo });
 
-    if (!driver || !(await bcrypt.compare(password, driver.password))) {
-        return next(new AppError("Invalid mobile no or password.", 404));
+    if (!driver) {
+        return next(new AppError("Doctor not found with this number", 404));
     }
 
-    if (driver.isBlocked) {
-        return next(new AppError("Your account is blocked. Please contact support.", 403));
+     if (
+        !driver.otp ||
+        driver.otp.code !== otp ||
+        new Date(driver.otp.expiresAt) < new Date()
+    ) {
+        return next(new AppError("Invalid or expired OTP.", 400));
     }
 
+    // Update device info
     driver.deviceId = deviceId || driver.deviceId;
     driver.deviceToken = deviceToken || driver.deviceToken;
+
+    // Optional: Clear OTP after successful login
+    driver.otp = undefined;
+
     await driver.save();
 
+    // Assuming createToken sets the JWT cookie and sends response
     createToken(driver, 200, res);
 });

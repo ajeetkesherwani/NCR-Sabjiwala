@@ -6,6 +6,7 @@ const driverSchema = new Schema(
   {
     // --- Driver basic details ---
     name: { type: String, required: true, trim: true },
+<<<<<<< HEAD
     email: { type: String, required: true },
     mobileNo: { type: String, required: true },
     password: { type: String },
@@ -26,14 +27,34 @@ const driverSchema = new Schema(
     insuranceImage: { type: String, default: "" },
     licenseImage: { type: String, default: "" },
     adharImage: { type: String, default: "" },
+=======
+    email: { type: String, required: true},
+    mobileNo: { type: String, required: true},
+    address: String,
+    image: { type: String, default: '' },
+    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    aadharNumber: { type: String, trim: true },
+    adharImage: { type: String, default: '' },
+    vehicleType: { type: String, required: true, trim: true },
+    vehicleNumber: { type: String, required: true, trim: true },
+    rcFrontImage: { type: String, default: '' },
+    rcBackImage: { type: String, default: '' },
+    dlNumber: { type: String, required: true, trim: true },
+>>>>>>> 76301326b5c6171f72a46a4a622acdf9a3c6aace
     // --- commission and wallet details ---
     commission: { type: Number, default: 0 },
     wallet_balance: { type: Number, default: 0 },
     cashCollection: { type: Number, default: 0 },
     isBlocked: { type: Boolean, default: false },
+    isRegistered: { type: Boolean, default: false },
+    status: { type: Boolean, default: true }, // available or not
+    otp: { code: String, expiresAt: Date },
+    // otpExpire: { type: Date },
+    // --- Device details ---
     // for firebase cloud messaging
     deviceId: { type: String, required: true },
     deviceToken: { type: String, required: true },
+<<<<<<< HEAD
     // current order assigned to driver
     currentOrderId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -41,6 +62,8 @@ const driverSchema = new Schema(
       default: null,
     },
     // Add inside driverSchema (anywhere before closing the schema)
+=======
+>>>>>>> 76301326b5c6171f72a46a4a622acdf9a3c6aace
     location: {
       type: {
         type: String,

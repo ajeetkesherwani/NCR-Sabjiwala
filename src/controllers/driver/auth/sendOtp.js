@@ -1,40 +1,31 @@
-const Vendor = require("../../../models/vendor");
+const Driver = require("../../../models/driver");
 const AppError = require("../../../utils/AppError");
 const catchAsync = require("../../../utils/catchAsync");
-const {
-  successResponse,
-  errorResponse,
-} = require("../../../utils/responseHandler");
+const { successResponse } = require("../../../utils/responseHandler");
 
 exports.sendOtp = catchAsync(async (req, res, next) => {
-  let { mobile, countryCode } = req.body;
+  let { mobile } = req.body;
+  if (!mobile) return next(new AppError("mobile is required", 400));
 
-  if (!mobile) return next(new AppError("mobile field is required.", 400));
-  if (!countryCode)
-    return next(new AppError("countryCode field is required.", 400));
+  const driver = await Driver.findOne({ mobileNo: mobile });
+  if (!driver) return next(new AppError("Driver not registerd", 400));
 
-  const otp = "1234";
-  const otpExpires = Date.now() + 10 * 60 * 1000;
+  if (!driver.isRegistered)
+    return next(
+      new AppError("You are not verified. wait for verification", 403)
+    );
 
-  let vendor = await Vendor.findOne({ mobile, countryCode });
+  if (driver.isBlocked) return next(new AppError("you are blocked", 403));
 
-  if (vendor) {
-    vendor.otp = otp;
-    vendor.otpExpires = otpExpires;
-    await vendor.save();
-  } else {
-    vendor = await Vendor.create({
-      mobile,
-      countryCode,
-      otp,
-      otpExpires,
-    });
-  }
+  const otpCode = "1234";
+  const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
-  // Optionally send SMS
-  // await sendSms(`${countryCode}${mobile}`, `Your OTP is ${otp}`);
+  driver.otp = {
+    code: otpCode,
+    expiresAt: otpExpiry,
+  };
 
-  successResponse(res, "OTP sent successfully", {
-    otp: process.env.NODE_ENV === "development" ? otp : "1234", // Mask OTP outside dev
-  });
+  await driver.save();
+
+  successResponse(res, "Otp send successfully", otpCode);
 });

@@ -1,8 +1,12 @@
 const express = require("express");
 const router = express.Router();
+//================ Working Controller ================//
 const fileUploader = require("../middleware/fileUploader");
+const { sendOtp } = require("../controllers/driver/auth/sendOtp");
 const { loginDriver } = require("../controllers/driver/auth/loginDriver");
 const { registerDriver } = require("../controllers/driver/auth/registerDriver");
+//================ Working Controller ================//
+
 const { toggleStatus } = require("../controllers/driver/auth/toggleStatus");
 const { updateProfile } = require("../controllers/driver/auth/updateProfile");
 const { driverAuthenticate } = require("../controllers/driver/auth/driverAuth");
@@ -22,11 +26,9 @@ const { getHomeData } = require("../controllers/driver/home/getHomeData");
 const { requestPasswordReset } = require("../controllers/driver/forgotPassword/requestPasswordReset");
 const { resetPasswordWithOtp } = require("../controllers/driver/forgotPassword/resetPasswordWithOtp");
 
-
-//------------------------------------------------
-// auth
-//------------------------------------------------
-// Register Driver
+//================ Working Api's ================//
+router.post("/sendOtp", sendOtp);
+router.post("/login", loginDriver);
 router.post("/register", fileUploader("driver", [
     { name: "image", maxCount: 1 },
     { name: "vehicleRcImage", maxCount: 1 },
@@ -37,8 +39,14 @@ router.post("/register", fileUploader("driver", [
     registerDriver
 );
 
+
+
+//------------------------------------------------
+// auth
+//------------------------------------------------
+// Register Driver
+
 // Login Driver
-router.post("/login", loginDriver);
 
 // Update Profile
 router.patch("/profile", driverAuthenticate, fileUploader("driver", [
